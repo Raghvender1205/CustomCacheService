@@ -6,9 +6,13 @@ use super::cache::Cache;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum Command {
-    Set { key: String, value: String },
-    Get { key: String },
-    Delete { key: String },
+    Set     { key: String, value: String },
+    Get     { key: String },
+    Delete  { key: String },
+    Expire  { key: String, seconds: u64 },
+    Incr    { key: String },
+    Decr    { key: String },
+    Keys    { pattern: String },
 }
 
 pub async fn handle_connection(mut socket: TcpStream, cache: Arc<Cache>) {

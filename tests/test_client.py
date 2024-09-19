@@ -19,8 +19,21 @@ if __name__ == "__main__":
     # Send a SET command
     send_command(host, port, {"Set": {"key": "hello", "value": "world"}})
 
+    # Set an expiration on 'hello'
+    send_command(host, port, {"Expire": {"key": "hello", "seconds": 10}})
+
     # Send a GET command
     send_command(host, port, {"Get": {"key": "hello"}})
+
+    # Increment a numerical value
+    send_command(host, port, {"Set": {"key": "counter", "value": "10"}})
+    send_command(host, port, {"Incr": {"key": "counter"}})
+
+    # Decrement the same numerical value
+    send_command(host, port, {"Decr": {"key": "counter"}})
+
+    # Get all keys (assuming there are some keys set in the cache)
+    send_command(host, port, {"Keys": {"pattern": "*"}})
 
     # Send a DELETE command
     send_command(host, port, {"Delete": {"key": "hello"}})
