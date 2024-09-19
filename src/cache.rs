@@ -14,9 +14,9 @@ struct Metrics {
 }
 
 impl Cache {
-    pub fn new() -> Arc<Self> {
+    pub fn new(max_size: usize) -> Arc<Self> {
         Arc::new(Self {
-            store: Mutex::new(DataStore::new()),
+            store: Mutex::new(DataStore::new(max_size)),
             metrics: Mutex::new(Metrics {
                 total_commands: 0,
                 start_time: Instant::now(),
@@ -44,5 +44,11 @@ impl Cache {
         }
 
         result
+    }
+
+    pub async fn cleanup_expired_keys(&self) {
+        let mut store = self.store.lock().unwrap();
+        store.remove_expired_keys();
+        info!("Completed periodic cleanup of expired keys");
     }
 }

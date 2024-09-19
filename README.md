@@ -12,6 +12,8 @@ Currently, the cache service has
     - Keys :- List all keys in the cache that match a specified pattern using regex.
 3. Uses `Mutex` to ensure all operations on the cache are thread-safe.
 4. TTL on keys.
+5. LRU Eviction policy
+6. Logging and monitoring.
 
 ## Design Approach
 1. Maybe use `Hashmaps` for key-value storage.
@@ -25,7 +27,5 @@ Currently, the cache service has
 
 ## TODO
 1. Binary Protocol :- For more efficient communication, maybe shift from JSON to a binary protocol.
-2. Add TLS encryption
-3. Logging and Monitoring 
-4. Persistence 
-5. Eviction Policies :- Implementation of eviction policies like LRU to manage memory usage efficiently
+2. Add TLS encryption 
+3. Persistence 
