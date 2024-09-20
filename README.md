@@ -25,6 +25,19 @@ Currently, the cache service has
 7. Maybe use LRU as the eviction policy when `cache` is full.
 8. Maybe add `Persistence`, save and load the cache state.
 
+### Binary Protocol
+Each command starts with a single byte indicating the command type. The commands are
+
+```
+0x01: SET
+0x02: GET
+0x03: DELETE
+0x04: EXPIRE
+0x05: INCR
+0x06: DECR
+0x07: KEYS
+```
+
 ## TODO
 1. Binary Protocol :- For more efficient communication, maybe shift from JSON to a binary protocol.
 2. Add TLS encryption 
