@@ -29,3 +29,8 @@ Currently, the cache service has
 1. Binary Protocol :- For more efficient communication, maybe shift from JSON to a binary protocol.
 2. Add TLS encryption 
 3. Persistence 
+4. Advanced eviction policies like `LFU`, `FIFO` etc.
+5. Batch operations to allow client send multiple commands in a single request.
+6. Allow versioning of keys so that clients can retrieve specific versions of keys.
+7. Provide support for custom serialization formats like `BSON`, `MessagePack` to optimize data storage and transmission
+8. Implement rate limiting to control the number of requests a client can make in a given time frame.
