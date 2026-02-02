@@ -2,7 +2,7 @@ use std::collections::{HashMap, VecDeque};
 use std::time::{Duration, Instant};
 use regex::Regex;
 use crate::commands::Command;
-use log::{error, info, warn};
+use log::{error, info};
 
 pub struct DataStore {
     data: HashMap<String, String>,
