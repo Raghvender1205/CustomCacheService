@@ -1,50 +1,37 @@
-mod cache;
-mod datastore;
-mod commands;
+mod config;
+mod engine;
+mod policy;
+mod resp;
 
-use std::time::Duration;
-use log::{info, warn, error};
-use env_logger::Env;
+use crate::config::Config;
+use crate::engine::Engine;
 use tokio::net::TcpListener;
-use tokio::time::interval;
-use cache::Cache;
-
-const MAX_CACHE_SIZE: usize = 1000;
-const CLEANUP_INTERVAL_SECS: u64 = 60;
+use tracing::{error, info};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
+    let cfg = Config::parse();
 
-    info!("Starting Cache Server");
-    let listener = TcpListener::bind("127.0.0.1:6379").await?;
-    info!("Listening on port 6379");
-    let cache = Cache::new(MAX_CACHE_SIZE);
+    tracing_subscriber::fmt()
+        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
+        .init();
 
-    // Spawn a task for periodic cleanup of expired keys
-    let cleanup_cache = cache.clone();
-    tokio::spawn(async move {
-        let mut interval = interval(Duration::from_secs(CLEANUP_INTERVAL_SECS));
-        loop {
-            interval.tick().await;
-            cleanup_cache.cleanup_expired_keys().await;
-        }
-    });
+    info!("starting cache server: bind={} shards={} eviction={}", cfg.bind, cfg.shards, cfg.eviction);
+
+    let engine = Engine::new(cfg.clone()).await;
+
+    let listener = TcpListener::bind(&cfg.bind).await?;
+    info!("listening on {}", cfg.bind);
 
     loop {
-        match listener.accept().await {
-            Ok((socket, addr)) => {
-                info!("New connection from: {}", addr);
-                let cache_clone = cache.clone();
-                tokio::spawn(async move {
-                    if let Err(e) = commands::handle_connection(socket, cache_clone).await {
-                        error!("Error handling connection: {}", e);
-                    }
-                });
+        let (socket, addr) = listener.accept().await?;
+        info!("accepted connection from {}", addr);
+
+        let engine = engine.clone();
+        tokio::spawn(async move {
+            if let Err(e) = resp::handle_connection(socket, engine).await {
+                error!("connection error from {}: {}", addr, e);
             }
-            Err(e) => {
-                warn!("Failed to accept connection: {}", e);
-            }
-        }
+        });
     }
 }
